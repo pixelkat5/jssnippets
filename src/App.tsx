@@ -359,7 +359,7 @@ export default function App() {
       isPanning.current = true
       panStart.current = { x: e.clientX, y: e.clientY }
       setPan(p => { panOrigin.current = p; return p })
-      el.style.cursor = 'grabbing'
+      el!.style.cursor = 'grabbing'
     }
     function onMouseMove(e: MouseEvent) {
       if (!isPanning.current) return
@@ -368,7 +368,7 @@ export default function App() {
     function onMouseUp() {
       if (!isPanning.current) return
       isPanning.current = false
-      el.style.cursor = ''
+      el!.style.cursor = ''
     }
     el.addEventListener('wheel', onWheel, { passive: false })
     el.addEventListener('mousedown', onMouseDown)
