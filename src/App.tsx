@@ -374,6 +374,11 @@ export default function App() {
   const activeBytes       = builtinSnippet?.bytes       ?? customSnippet?.bytes       ?? '-'
   const activeKey         = builtinSnippet?.componentKey ?? customSnippet?.id         ?? ''
 
+  function handleDprChange(v: number) {
+    setDpr(v)
+    setZoom(1)
+  }
+
   function handleSave(s: CustomSnippet) {
     const updated = [...customSnippets, s]
     setCustomSnippets(updated)
@@ -491,7 +496,7 @@ export default function App() {
                 <button
                   key={v}
                   className={'psetting-btn' + (dpr === v ? ' active' : '')}
-                  onClick={() => setDpr(v)}
+                  onClick={() => handleDprChange(v)}
                 >
                   {v === window.devicePixelRatio && v !== 0.5 && v !== 1 && v !== 1.5 && v !== 2 ? 'native' : `${v}x`}
                 </button>
@@ -509,7 +514,7 @@ export default function App() {
           )}
           {ctrlHeld && <div style={{ position: 'absolute', inset: 0, zIndex: 20, cursor: 'zoom-in' }} />}
           <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-            <div style={{ position: 'absolute', top: '50%', left: '50%', width: '100%', height: '100%', transformOrigin: 'center', transform: `translate(-50%, -50%) scale(${zoom})`, display: 'flex' }}>
+            <div style={{ position: 'absolute', top: '50%', left: '50%', width: '100%', height: '100%', transformOrigin: 'center', transform: `translate(-50%, -50%) scale(${zoom})` }}>
               <PreviewPane isCustom={isCustom} activeKey={activeKey} customSnippet={customSnippet} dpr={dpr} />
             </div>
           </div>
