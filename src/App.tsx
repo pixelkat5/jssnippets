@@ -431,11 +431,7 @@ export default function App() {
       <aside className="sidebar">
         <div className="sidebar-header">
           <div className="wordmark">
-            <div className="wordmark-icon">&lt;/&gt;</div>
-            <div className="wordmark-text">
-              <span className="wordmark-main">JS Snippets</span>
-              <span className="wordmark-sub">component library</span>
-            </div>
+            <span className="wordmark-main">JS</span><span className="wordmark-accent">Snippets</span>
           </div>
           <div className="header-meta">{totalCount} components</div>
         </div>
