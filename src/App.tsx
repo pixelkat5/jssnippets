@@ -335,7 +335,11 @@ export default function App() {
   const [showModal, setShowModal] = useState(false)
   const [dpr, setDpr] = useState(1)
   const [zoom, setZoom] = useState(1)
+  const [pan, setPan] = useState({ x: 0, y: 0 })
   const [ctrlHeld, setCtrlHeld] = useState(false)
+  const isPanning = useRef(false)
+  const panStart = useRef({ x: 0, y: 0 })
+  const panOrigin = useRef({ x: 0, y: 0 })
 
   const previewRef = useRef<HTMLDivElement>(null)
 
@@ -349,8 +353,33 @@ export default function App() {
       const delta = e.deltaMode === 1 ? e.deltaY * 0.05 : e.deltaY * 0.002
       setZoom(z => Math.min(3, Math.max(0.3, z * (1 - delta))))
     }
+    function onMouseDown(e: MouseEvent) {
+      if (e.button !== 1 && !e.altKey) return
+      e.preventDefault()
+      isPanning.current = true
+      panStart.current = { x: e.clientX, y: e.clientY }
+      setPan(p => { panOrigin.current = p; return p })
+      el.style.cursor = 'grabbing'
+    }
+    function onMouseMove(e: MouseEvent) {
+      if (!isPanning.current) return
+      setPan({ x: panOrigin.current.x + e.clientX - panStart.current.x, y: panOrigin.current.y + e.clientY - panStart.current.y })
+    }
+    function onMouseUp() {
+      if (!isPanning.current) return
+      isPanning.current = false
+      el.style.cursor = ''
+    }
     el.addEventListener('wheel', onWheel, { passive: false })
-    return () => el.removeEventListener('wheel', onWheel)
+    el.addEventListener('mousedown', onMouseDown)
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+    return () => {
+      el.removeEventListener('wheel', onWheel)
+      el.removeEventListener('mousedown', onMouseDown)
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
   }, [])
 
   useEffect(() => {
@@ -377,6 +406,7 @@ export default function App() {
   function handleDprChange(v: number) {
     setDpr(v)
     setZoom(1)
+    setPan({ x: 0, y: 0 })
   }
 
   function handleSave(s: CustomSnippet) {
@@ -401,8 +431,11 @@ export default function App() {
       <aside className="sidebar">
         <div className="sidebar-header">
           <div className="wordmark">
-            <span className="wordmark-main">SNIPPET</span>
-            <span className="wordmark-accent">VIEWER</span>
+            <div className="wordmark-icon">&lt;/&gt;</div>
+            <div className="wordmark-text">
+              <span className="wordmark-main">JS Snippets</span>
+              <span className="wordmark-sub">component library</span>
+            </div>
           </div>
           <div className="header-meta">{totalCount} components</div>
         </div>
@@ -507,15 +540,21 @@ export default function App() {
         <div className="preview-pane" ref={previewRef}>
           <div className="preview-corner tl">PREVIEW</div>
           <div className="preview-corner tr">{isCustom ? 'CUSTOM' : activeKey.toUpperCase()}</div>
-          {zoom !== 1 && (
-            <div style={{ position: 'absolute', bottom: 8, left: 8, zIndex: 10, fontSize: 9, color: 'var(--muted)', fontFamily: 'var(--font-mono)', letterSpacing: '.08em', pointerEvents: 'none' }}>
-              {Math.round(zoom * 100)}%
+          {(zoom !== 1 || pan.x !== 0 || pan.y !== 0) && (
+            <div
+              onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }) }}
+              style={{ position: 'absolute', bottom: 8, left: 8, zIndex: 10, fontSize: 9, color: 'var(--muted)', fontFamily: 'var(--font-mono)', letterSpacing: '.08em', cursor: 'pointer', userSelect: 'none' }}
+              title="Click to reset view"
+            >
+              {Math.round(zoom * 100)}% · [RESET]
             </div>
           )}
           {ctrlHeld && <div style={{ position: 'absolute', inset: 0, zIndex: 20, cursor: 'zoom-in' }} />}
           <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-            <div style={{ position: 'absolute', top: '50%', left: '50%', width: '100%', height: '100%', transformOrigin: 'center', transform: `translate(-50%, -50%) scale(${zoom})` }}>
-              <PreviewPane isCustom={isCustom} activeKey={activeKey} customSnippet={customSnippet} dpr={dpr} />
+            <div style={{ position: 'absolute', top: '50%', left: '50%', width: '100%', height: '100%', transformOrigin: 'center', transform: `translate(calc(-50% + ${pan.x}px), calc(-50% + ${pan.y}px)) scale(${zoom})`, willChange: 'transform' }}>
+              <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+                <PreviewPane isCustom={isCustom} activeKey={activeKey} customSnippet={customSnippet} dpr={dpr} />
+              </div>
             </div>
           </div>
         </div>

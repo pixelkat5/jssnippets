@@ -269,8 +269,8 @@ function DitheredWavesInner({ waveSpeed, waveFrequency, waveAmplitude, colors, c
 
 export default function DitheredWaves({ dpr = 1 }: { dpr?: number }) {
   return (
-    <div style={{ width: '100%', height: '100%' }}>
-      <Canvas key={dpr} camera={{ position: [0, 0, 6] }} dpr={dpr} gl={{ antialias: true, preserveDrawingBuffer: true }}>
+    <div style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+      <Canvas key={dpr} camera={{ position: [0, 0, 6] }} dpr={dpr} gl={{ antialias: true, preserveDrawingBuffer: true }} style={{ width: '100%', height: '100%', display: 'block' }} resize={{ scroll: false, debounce: { scroll: 50, resize: 0 } }}>
         <DitheredWavesInner
           waveSpeed={0.02}
           waveFrequency={4}
