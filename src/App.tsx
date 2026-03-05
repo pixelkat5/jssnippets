@@ -509,7 +509,7 @@ export default function App() {
           )}
           {ctrlHeld && <div style={{ position: 'absolute', inset: 0, zIndex: 20, cursor: 'zoom-in' }} />}
           <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-            <div style={{ position: 'absolute', top: '50%', left: '50%', width: '100%', height: '100%', transformOrigin: 'center', transform: `translate(-50%, -50%) scale(${zoom})` }}>
+            <div style={{ position: 'absolute', top: '50%', left: '50%', width: '100%', height: '100%', transformOrigin: 'center', transform: `translate(-50%, -50%) scale(${zoom})`, display: 'flex' }}>
               <PreviewPane isCustom={isCustom} activeKey={activeKey} customSnippet={customSnippet} dpr={dpr} />
             </div>
           </div>
